@@ -1,4 +1,4 @@
-return spectrum.Input.Controls {
+local defaults = spectrum.Input.Controls {
    -- stylua: ignore
    controls = {
       -- Controls can be mapped to keys, text, gamepad buttons, joystick axes, or mouse presses.
@@ -7,14 +7,15 @@ return spectrum.Input.Controls {
       -- Controls can also be combinations of inputs, e.g. "lshift a" or "lctrl s".
       -- See the LÖVE wiki for all of the constants.
       move_upleft    = { "q", "y" },
-      move_up        = { "w", "k", "axis:lefty+" },
+      move_up        = { "w", "k" },
       move_upright   = { "e", "u" },
-      move_left      = { "a", "h", "axis:leftx-" },
-      move_right     = { "d", "l", "axis:leftx+" },
+      move_left      = { "a", "h" },
+      move_right     = { "d", "l" },
       move_downleft  = { "z", "b" },
-      move_down      = { "s", "j", "axis:lefty-" },
+      move_down      = { "s", "j" },
       move_downright = { "c", "n" },
       wait           = "x",
+      rebind         = ";",
    },
    -- Pairs are controls that map to either 4 or 8 directions.
    -- With only 4 directions, the order is up, left, right, down.
@@ -27,3 +28,25 @@ return spectrum.Input.Controls {
       },
    },
 }
+
+local saveContents = love.filesystem.read("controls.json")
+if saveContents then
+   --- @type ControlsOptions
+   local config = prism.json.decode(saveContents)
+
+   -- Update saved controls with any newly added inputs
+   for name, control in pairs(defaults:getConfig().controls) do
+      if not config.controls[name] then config.controls[name] = control end
+   end
+
+   for name, control in pairs(defaults:getConfig().pairs) do
+      if not config.pairs[name] then config.pairs[name] = control end
+   end
+
+   local controls = spectrum.Input.Controls(config)
+   love.filesystem.write("controls.json", prism.json.encode(config))
+   return controls
+end
+
+love.filesystem.write("controls.json", prism.json.encode(defaults:getConfig()))
+return defaults

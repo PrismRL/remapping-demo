@@ -56,6 +56,8 @@ function GameLevelState:updateDecision(dt, owner, decision)
       if self:setAction(move) then return end
    end
 
+   if controls.rebind.pressed then self.manager:push(spectrum.gamestates.RebindState()) end
+
    if controls.wait.pressed then self:setAction(prism.actions.Wait(owner)) end
 end
 
